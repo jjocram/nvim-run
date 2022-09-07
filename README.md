@@ -1,5 +1,5 @@
 # NVIM-RUN
-Plugins for [Neovim](https://neovim.io) that add the `:Run` command.
+Plugin for [Neovim](https://neovim.io) that adds the `:Run` command.
 
 ## How does it know what to run?
 You decide what it is going to run. Everything is configurable with a `YAML` file in your `$HOME` directory [or in your project root directory (WiP)]. You can specify different behaviors per different file type or one sequence of command to execute.
