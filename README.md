@@ -17,3 +17,4 @@ tex:
 python:
   - "python3 main.py"
 ```
+3. Open your file and type `:Run`
