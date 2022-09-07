@@ -37,7 +37,7 @@ local function build_jobs_chain(jobs)
     -- There is at least one job/command
     local first_job = jobs[1]
     local last_job = first_job
-    for k,next_job in pairs(jobs) do
+    for index,next_job in pairs(jobs) do
       -- Every job get the failure handler -> show "Error"
       next_job:after_failure(function (j, code, _)
         vim.notify("Command: "..j.command.." "..table.concat(j.args, " ").."\nFailed with exit code: "..code, "error", {title = plugin_name})
@@ -45,7 +45,7 @@ local function build_jobs_chain(jobs)
 
       -- Chain of jobs. The next one is lunched only if 
       -- the current exited with code=0 (and_then_on_success)
-      if k ~= 1 then
+      if index ~= 1 then
         last_job:and_then_on_success(next_job)
         last_job = next_job
       end
@@ -85,7 +85,6 @@ local function run()
 
     -- Execute first command
     first_job:start()
-
 
   else
     print("Filetype ("..file_type..") not recognized!")
