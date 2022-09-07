@@ -1,5 +1,6 @@
 local lua_parser = require("run.yaml")
 local Job = require("plenary.job")
+local Path = require("plenary.path")
 
 -- Object for the module
 local M = {}
@@ -59,36 +60,55 @@ local function build_jobs_chain(jobs)
     return first_job
 end
 
--- Main function of the plugin
-local function run()
-  local settings_file = assert(io.open("/Users/marco/.nvim-run.yaml", "r"))
+-- Locate settings file, open it, and parse it
+-- TODO: improve
+local function get_settings(file_name)
+  local settings_full_path = ""
+
+  -- TODO: this does not work in a Windows environment
+  settings_full_path = vim.loop.os_homedir().."/"..file_name
+
+  local settings_file = assert(io.open(settings_full_path, "r"))
   local settings = lua_parser.eval(settings_file:read("a"))
   settings_file:close()
 
+  return settings
+end
+
+-- Main function of the plugin
+local function run()
+  -- Load settings file
+  -- TODO: move in an init function to run once 
+  -- TODO: provide a way to reload settings through a command
+  local settings = get_settings(".nvim-run.yaml")
+  local jobs = nil
+
   local file_type = vim.bo.filetype
+
+  -- Retrieve the list of commands to execute
+  -- separated as follow: {"executable", "arg_1", ..., "arg_n"}
   if settings[file_type] then
-    -- Retrieve the list of commands
-    -- separated as {"executable", "arg_1", ..., "arg_n"}
-    local jobs = get_jobs(settings[file_type])
-
-    -- Jobs must not be 0
-    if #jobs == 0 then
-      vim.notify("No commands for this filetype", "error", {title = plugin_name})
-      return
-    end
-
-    -- Build the chain of jobs 
-    local first_job = build_jobs_chain(jobs)
-
-    -- Notify the start of the process
-    vim.notify("Jobs started", "info", { title = plugin_name })
-
-    -- Execute first command
-    first_job:start()
-
+    -- File type is present on settings file
+    jobs = get_jobs(settings[file_type])
   else
-    print("Filetype ("..file_type..") not recognized!")
+    jobs = get_jobs(settings)
   end
+
+  -- Jobs must not be 0
+  if #jobs == 0 then
+    vim.notify("No commands for this filetype", "error", {title = plugin_name})
+    return
+  end
+
+  -- Build the chain of jobs 
+  local first_job = build_jobs_chain(jobs)
+
+  -- Notify the start of the process
+  vim.notify("Jobs started", "info", { title = plugin_name })
+
+  -- Execute first command
+  first_job:start()
+
 end
 
 M.run = run
