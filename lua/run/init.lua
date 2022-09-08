@@ -13,7 +13,8 @@ local function get_command_table(command)
   -- putting them into a table
   local command_table = {}
   for command_component in string.gmatch(command, "%S+") do
-    table.insert(command_table, command_component)
+    local replaced_command_component = string.gsub(command_component, "#", vim.api.nvim_buf_get_name(0))
+    table.insert(command_table, replaced_command_component)
   end
 
   return command_table
