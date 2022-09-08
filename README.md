@@ -15,6 +15,9 @@ tex:
   - "lualatex --halt-on-error --interaction=nonstopmode main.tex"
   - "open main.pdf"
 python:
-  - "python3 main.py"
+  - "python3 #"
 ```
 3. Open your file and type `:Run`
+
+### Special characters
+- `#`: absolute file path of the file open in the buffer in which you invoke `:Run`

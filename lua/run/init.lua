@@ -5,6 +5,8 @@ local Path = require("plenary.path")
 -- Object for the module
 local M = {}
 local plugin_name = "Run"
+local is_windows = jit.os == "Windows"
+local use_shellslash = is_windows and vim.o.shellslash
 
 local function get_command_table(command)
   -- Seprate executables (1) and the arguments (2...)
@@ -60,13 +62,22 @@ local function build_jobs_chain(jobs)
     return first_job
 end
 
+local function get_separator() 
+  if is_windows and (not use_shellslash) then
+    -- is windows with the back_slash
+    return '\\'
+  end
+
+  -- otherwise is the classic slash
+  return '/'
+end
+
 -- Locate settings file, open it, and parse it
 -- TODO: improve
 local function get_settings(file_name)
   local settings_full_path = ""
 
-  -- TODO: this does not work in a Windows environment
-  settings_full_path = vim.loop.os_homedir().."/"..file_name
+  settings_full_path = vim.loop.os_homedir()..get_separator()..file_name
 
   local settings_file = assert(io.open(settings_full_path, "r"))
   local settings = lua_parser.eval(settings_file:read("a"))
